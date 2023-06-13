@@ -37,7 +37,7 @@ class PreProcessor:
         data = self.data.copy()
         cleaned_data = self.data_cleaning(data)
         meta_data = self.assign_values(cleaned_data)
-        meta_data.to_csv("data/cleaned_meta_data.csv")
+        meta_data.to_csv("data/cleaned_metadata.csv")
         logger.info("Data cleaned and saved in data/cleaned_metadata.csv")
 
 if __name__ == "__main__":
