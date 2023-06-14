@@ -14,12 +14,15 @@ class PreProcessor:
 
     @staticmethod
     def data_cleaning(data)-> pd.DataFrame:
-        logger.info(f"Data is read with size {len(data)}")
+        data = data.copy()
         #data = data[data.price.notnull()]
-        data['price'] = data.price.str.replace('$','')[:5] # get only value
+        data['price'] = data.price.str.replace('$','')
+        data['price'] = data.price.str[:5]
+        data['price'] = data['price'].str.extract('([0-9]+.[0-9]*)')
+        data['price'] = data['price'].str.strip()
+        data['price'] = data['price'].str.replace(',','')
         data['price'] = data['price'].astype(float)
         data = data[data.price.notnull()]
-        logger.info(f"Price filtered by NA , size after filtering is {len(data)}")
         data['software_category'] = data['category'].apply(lambda x: ast.literal_eval(x)[1])
         return data
     
