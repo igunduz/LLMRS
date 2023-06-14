@@ -1,6 +1,6 @@
-# sofRec
-Recommender system for software solutions.
+# sofRec: Recommender system for software solutions
 
+## Pre-Processing data
 1. Licensing Fee is set to 80% of minimum price in the software category. The idea is that licensing fee could be a similar in a particular sostware category and country.
 
 2. Implementation Cost is set to 50% of cost of software.
@@ -9,3 +9,5 @@ Recommender system for software solutions.
 
 To run the data preproceesor run:
 ```python src/data_preprocessing.py ```
+
+## Baseline Model
