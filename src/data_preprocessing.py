@@ -9,8 +9,10 @@ sys.path.append(join(os.getcwd(), 'src'))
 from logger import logger
 
 class PreProcessor:
-    def __init__(self, data_path) -> None:
-        self.data = pd.read_csv(data_path)
+    def __init__(self, meata_data_path, reviews_data_path) -> None:
+        meta_data = pd.read_csv(meata_data_path)
+        review_data = pd.read_csv(reviews_data_path)
+        self.data = review_data.merge(meta_data, on="asin", how="inner")
 
     @staticmethod
     def data_cleaning(data)-> pd.DataFrame:
@@ -40,9 +42,9 @@ class PreProcessor:
         data = self.data.copy()
         cleaned_data = self.data_cleaning(data)
         meta_data = self.assign_values(cleaned_data)
-        meta_data.to_csv("data/cleaned_metadata.csv")
-        logger.info("Data cleaned and saved in data/cleaned_metadata.csv")
+        meta_data.to_csv("data/review_metadata.csv")
+        logger.info("Data cleaned and saved in data/review_metadata.csv")
 
 if __name__ == "__main__":
-    obj = PreProcessor("data/metadata_subset.csv")
+    obj = PreProcessor("../data/filtered_metadata.csv", "../data/reviews_full.csv")
     obj.main()
