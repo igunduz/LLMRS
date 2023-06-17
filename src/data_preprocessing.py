@@ -46,5 +46,5 @@ class PreProcessor:
         logger.info("Data cleaned and saved in data/review_metadata.csv")
 
 if __name__ == "__main__":
-    obj = PreProcessor("../data/filtered_metadata.csv", "../data/reviews_full.csv")
+    obj = PreProcessor("../external_data/filtered_metadata.csv", "../external_data/reviews_full.csv")
     obj.main()
