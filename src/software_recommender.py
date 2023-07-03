@@ -1,19 +1,13 @@
-import pandas as pd
-import nltk
-from sentence_transformers import SentenceTransformer
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-from nltk.stem import WordNetLemmatizer
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.cluster import KMeans
-from transformers import pipeline
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from natsort import index_natsorted
-import numpy as np
+import os
 import sys
 from os.path import join, exists
-import os
+
+import numpy as np
+import pandas as pd
+from sentence_transformers import SentenceTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from transformers import pipeline
 
 sys.path.append(join(os.getcwd(), 'src'))
 from logger import logger
@@ -27,15 +21,16 @@ class Zero_Shot_Recosys:
         self.softwares = pd.read_csv(softwares_path)
         logger.info(f"softwares data loaded with size {len(self.softwares)}")
         reviews = reviews.merge(self.softwares, on='asin', how='inner')
-        reviews = reviews[['overall', 'verified', 'reviewTime', 'reviewerID', 'asin','reviewerName', 'reviewText', 'summary', 'vote']]
+        reviews = reviews[
+            ['overall', 'verified', 'reviewTime', 'reviewerID', 'asin', 'reviewerName', 'reviewText', 'summary',
+             'vote']]
         self.reviews = reviews.dropna(subset='reviewText')
         logger.info(f"reviews data loaded with size {len(self.reviews)}")
-        
 
     @classmethod
     def compute_sentiment_scores_for_single_asin(cls, df):
         classifier = pipeline("zero-shot-classification",
-                      model="facebook/bart-large-mnli", device=0)
+                              model="facebook/bart-large-mnli", device=0)
         postive_score = 0
         negative_score = 0
         for index, row in df.iterrows():
@@ -47,33 +42,35 @@ class Zero_Shot_Recosys:
             negative_score += result_dict.get('negative')
         nos_records = df.shape[0]
         return postive_score, negative_score, nos_records
-    
+
     @classmethod
     def compute_sentiment_scores_for_all_asin(cls, reviews):
         unique_ids = reviews.asin.unique().tolist()
         scores_dict = {
-        "asin": [],
-        "postive_score":[],
-        "negative_score": [],
-        "number_reviews": []
+            "asin": [],
+            "postive_score": [],
+            "negative_score": [],
+            "number_reviews": []
         }
         logger.info(f"Number of softwares available is {len(unique_ids)}")
         for id in unique_ids:
-            postive_score, negative_score, len_df = cls.compute_sentiment_scores_for_single_asin(reviews[reviews.asin == id])
+            postive_score, negative_score, len_df = cls.compute_sentiment_scores_for_single_asin(
+                reviews[reviews.asin == id])
             scores_dict['asin'].append(id)
             scores_dict['postive_score'].append(postive_score)
             scores_dict['negative_score'].append(negative_score)
             scores_dict['number_reviews'].append(len_df)
-            
+
         scores_df = pd.DataFrame.from_dict(scores_dict)
         return scores_df
-    
+
     def ranking_algol(df):
         df['rank_score'] = (df['postive_score'] - df['negative_score']) * df['number_reviews']
         df = df.sort_values(by='rank_score', ascending=False)
         return df
-    
-    def price_ranking(max_price, min_price, max_license_price, min_license_price, max_maintenance_price, min_maintenance_price, ranked_data):
+
+    def price_ranking(max_price, min_price, max_license_price, min_license_price, max_maintenance_price,
+                      min_maintenance_price, ranked_data):
         msg = []
         ranked_price_data = ranked_data[(ranked_data.price >= min_price) & (ranked_data.price <= max_price)]
         if len(ranked_price_data) >= 1:
@@ -82,30 +79,35 @@ class Zero_Shot_Recosys:
         else:
             msg.append("The data available does not have price between the range you specified")
 
-        ranked_license_data = ranked_data[(ranked_data.Licensing_Fee >= min_license_price) & (ranked_data.Licensing_Fee <= max_license_price)]
+        ranked_license_data = ranked_data[
+            (ranked_data.Licensing_Fee >= min_license_price) & (ranked_data.Licensing_Fee <= max_license_price)]
         if len(ranked_license_data) >= 1:
             ranked_data = ranked_license_data
             logger.info(f"Size after filtering with license fee: {len(ranked_license_data)}")
         else:
-            msg.append("The data available does not have license fee between the range you specified after the price filtering.")
+            msg.append(
+                "The data available does not have license fee between the range you specified after the price filtering.")
 
-        ranked_maintenance_data = ranked_data[(ranked_data.Licensing_Fee >= min_maintenance_price) & (ranked_data.Licensing_Fee <= max_maintenance_price)]
+        ranked_maintenance_data = ranked_data[
+            (ranked_data.Licensing_Fee >= min_maintenance_price) & (ranked_data.Licensing_Fee <= max_maintenance_price)]
         if len(ranked_maintenance_data) >= 1:
             ranked_data = ranked_maintenance_data
             logger.info(f"Size after filtering with maintenance fee: {len(ranked_maintenance_data)}")
         else:
-            msg.append("The data available does not have the maintenance fee between the range you specified after license fee filtering")
+            msg.append(
+                "The data available does not have the maintenance fee between the range you specified after license fee filtering")
 
-        return ranked_data , msg
-    
+        return ranked_data, msg
 
     @classmethod
-    def rec_softwares(cls, software_description, model_name, software_data, max_price = np.inf, min_price = -1, max_license_price = np.inf, min_license_price = -1, max_maintenance_price = np.inf, min_maintenance_price = -1):
+    def rec_softwares(cls, model_name, software_data, software_description, max_price=np.inf, min_price=-1,
+                      max_license_price=np.inf, min_license_price=-1, max_maintenance_price=np.inf,
+                      min_maintenance_price=-1):
         software_data['software_description'] = software_description
-        
+
         if model_name == "TfidfVectorizer":
             vectorizer = TfidfVectorizer()
-            X = vectorizer.fit_transform(software_data[['software_description','description']])
+            X = vectorizer.fit_transform(software_data[['software_description', 'description']])
             cosine_sim = cosine_similarity(X)
         else:
             try:
@@ -116,21 +118,22 @@ class Zero_Shot_Recosys:
             except Exception as e:
                 raise f"{model_name} not a transformer model or TfidVectorizer"
 
-        target_item_index = 0 
+        target_item_index = 0
         scores = list(enumerate(cosine_sim[target_item_index]))
         scores = sorted(scores, key=lambda x: x[1], reverse=True)
         top_n = 10
-        top_recommendations = scores[0:top_n+1]
+        top_recommendations = scores[0:top_n + 1]
         index_list = []
         for ind, score in top_recommendations:
             index_list.append(ind)
-        ranked_data =  cls.ranking_algol(software_data.iloc[index_list,:])
-        price_ranked_data, msg = cls.price_ranking(max_price, min_price, max_license_price, min_license_price, max_maintenance_price, min_maintenance_price, ranked_data)
+        ranked_data = cls.ranking_algol(software_data.iloc[index_list, :])
+        price_ranked_data, msg = cls.price_ranking(max_price, min_price, max_license_price, min_license_price,
+                                                   max_maintenance_price, min_maintenance_price, ranked_data)
 
         if msg:
             for m in msg:
                 print(m)
-        
+
         if len(price_ranked_data) > 2:
             return price_ranked_data
         else:
@@ -144,23 +147,28 @@ class Zero_Shot_Recosys:
         softwares = softwares.merge(scores_df, on='asin', how='inner')
 
         return softwares
-    
-    def recommender(self):
-        software_path_to_file = "data/softwares_only.csv"
+
+    def recommender(self, query_params) -> pd.DataFrame:
+        software_path_to_file = "data/softwares_only__.csv"
         if exists(software_path_to_file):
-            print("file read")
+            logger.info("file exist and has been read")
             softwares = pd.read_csv(software_path_to_file)
         else:
             softwares = self.prepare_software_data()
-        
-        software_description = ""
-        model_name = "sentence-transformers/all-MiniLM-L6-v2"
-        output = self.rec_softwares(software_description, model_name, softwares)
+            softwares.to_csv("data/softwares_with_score.csv")
+        model_name = "sentence-transformers/all-mpnet-base-v2"
+        output = self.rec_softwares(model_name= model_name, software_data=softwares, **query_params)
+        output.to_csv(f"output/{model_name.replace('/', '_')}_output.csv")
+        return output
 
-        output.to_csv(f"output/{model_name.replace('/','_')}_output.csv")
 
-if __name__ == "__main__":
-    reviews_path = "data/reviews.csv"
-    software_path = "data/softwares.csv"
-    obj = Zero_Shot_Recosys(reviews_path, software_path)
-    obj.recommender()
+# if __name__ == "__main__":
+#     reviews_path = "data/reviews.csv"
+#     software_path = "data/softwares.csv"
+#     query_params = {
+#     "software_description" : "HR program for windows and mac for japanese humans",
+#     "max_price" : 500,
+#     "min_price" : 10
+#     }
+#     obj = Zero_Shot_Recosys(reviews_path, software_path)
+#     obj.recommender(query_params)

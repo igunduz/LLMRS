@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Chatbot</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script>
+    function getText() {
+    var description =document.getElementById("description_txt").value;
+    var price =document.getElementById("price_txt").value;
+    var license =document.getElementById("license_txt").value;
+    var maintenance =document.getElementById("maintenance_txt").value;
+    var json_body = {
+    "software_description" : description,
+    "max_price" : price.toString().split(",")[1],
+    "min_price" : price.toString().split(",")[0],
+    "max_license" : license.toString().split(",")[1],
+    "min_license" : license.toString().split(",")[0],
+    "max_maintenance" : maintenance.toString().split(",")[1],
+    "min_maintenance" : maintenance.toString().split(",")[0]
+    };
+    console.log(json_body)
+    $.ajax({
+    type:"GET",
+    dataType: "json",
+    data: json_body,
+    url: "http://127.0.0.1:5000/recommender",
+    success: function(json_body){
+        buf1=data;
+    }
+    })
+ }
+  </script>
+</head>
+
+<body>
+  <!-- partial:index.partial.html -->
+<div  style="background-color: lightblue" >
+  <center>
+  <img src="web_interface/bot.png" class=".img-circle" style="background-color: #485a47; border-radius: 50%">
+    </center>
+</div>
+
+  <div>
+    <center>
+    <p><h3 style="text-align: center; text-decoration-thickness: auto"> Welcome, how can I help you? </h3> </p>
+      </center>
+  </div >
+
+  <div class="main_bg" style="background-color: #b9a36f">
+  <form>
+    <textarea id ="description_txt" placeholder="Describe your software here" style="width: 100%;
+  height: 150px; padding: 12px 20px;box-sizing: border-box;
+  border: 2px solid #ccc;border-radius: 4px; background-color: #f8f8f8;resize: none"></textarea>
+    <center>
+    <input type="text" id="price_txt" placeholder="Enter price range separated by ',' " style="width: 30%;
+  padding: 12px 20px;box-sizing: border-box; border: 2px solid #ccc;border-radius: 4px; background-color: #f8f8f8">
+    <input type="text" id="license_txt" placeholder="Enter license fee range separated by ','" style="width: 30%;
+  padding: 12px 20px;box-sizing: border-box; border: 2px solid #ccc;border-radius: 4px; background-color: #f8f8f8">
+    <input type="text" id="maintenance_txt" placeholder="Enter maintenance fee range separated by ','" style="width: 30%;
+  padding: 12px 20px;box-sizing: border-box; border: 2px solid #ccc;border-radius: 4px; background-color: #f8f8f8">
+      </center>
+  </form>
+  <div class="right_card" style="background-color: #485a47; float: right; width: 50%">
+  </div>
+  <!-- Submit button -->
+  <button type="submit" class="btn btn-primary btn-block mb-4" onclick="getText()">Get Recommendation</button>
+  </div>
+</body>
+
+</html>
