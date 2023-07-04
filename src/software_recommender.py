@@ -101,8 +101,8 @@ class Zero_Shot_Recosys:
 
     @classmethod
     def rec_softwares(cls, model_name, software_data, software_description, max_price=np.inf, min_price=-1,
-                      max_license_price=np.inf, min_license_price=-1, max_maintenance_price=np.inf,
-                      min_maintenance_price=-1):
+                      max_license=np.inf, min_license=-1, max_maintenance=np.inf,
+                      min_maintenance=-1):
         software_data['software_description'] = software_description
 
         if model_name == "TfidfVectorizer":
@@ -127,12 +127,13 @@ class Zero_Shot_Recosys:
         for ind, score in top_recommendations:
             index_list.append(ind)
         ranked_data = cls.ranking_algol(software_data.iloc[index_list, :])
-        price_ranked_data, msg = cls.price_ranking(max_price, min_price, max_license_price, min_license_price,
-                                                   max_maintenance_price, min_maintenance_price, ranked_data)
+        price_ranked_data, msg = cls.price_ranking(float(max_price), float(min_price), float(max_license),
+                                                   float(min_license),
+                                                   float(max_maintenance), float(min_maintenance), ranked_data)
 
         if msg:
             for m in msg:
-                print(m)
+                logger.info(m)
 
         if len(price_ranked_data) > 2:
             return price_ranked_data
@@ -157,18 +158,6 @@ class Zero_Shot_Recosys:
             softwares = self.prepare_software_data()
             softwares.to_csv("data/softwares_with_score.csv")
         model_name = "sentence-transformers/all-mpnet-base-v2"
-        output = self.rec_softwares(model_name= model_name, software_data=softwares, **query_params)
+        output = self.rec_softwares(model_name=model_name, software_data=softwares, **query_params)
         output.to_csv(f"output/{model_name.replace('/', '_')}_output.csv")
-        return output
-
-
-# if __name__ == "__main__":
-#     reviews_path = "data/reviews.csv"
-#     software_path = "data/softwares.csv"
-#     query_params = {
-#     "software_description" : "HR program for windows and mac for japanese humans",
-#     "max_price" : 500,
-#     "min_price" : 10
-#     }
-#     obj = Zero_Shot_Recosys(reviews_path, software_path)
-#     obj.recommender(query_params)
+        return output.head(2)
