@@ -12,13 +12,13 @@ sys.path.append(join(os.getcwd(), 'src'))
 from logger import logger
 
 class PreProcessor:
-    def __init__(self, meata_data_path, reviews_data_path) -> None:
-        meta_data = pd.read_csv(meata_data_path)
-        review_data = pd.read_csv(reviews_data_path)
-        self.data = review_data.merge(meta_data, on="asin", how="inner")
+    def __init__(self, meta_data_path, reviews_data_path) -> None:
+        self.meta_data = pd.read_csv(meta_data_path)
+        self.review_data = pd.read_csv(reviews_data_path)
+        #self.data = review_data.merge(meta_data, on="asin", how="inner")
 
     @staticmethod
-    def cleaing_price(data)-> pd.DataFrame:
+    def cleaning_price(data)-> pd.DataFrame:
         data = data.copy()
         #data = data[data.price.notnull()]
         data['price'] = data.price.str.replace('$','')
@@ -32,13 +32,13 @@ class PreProcessor:
     
     @staticmethod
     def assign_values(data):
+        data['software_category'] = data['category'].apply(lambda x: ast.literal_eval(x)[1])
         Min_license_fee = data.groupby('software_category').agg(Min_Licensing_Fee=('price', np.min)).reset_index()
         data = data.merge(Min_license_fee, on='software_category', how='inner')
         data['Licensing_Fee'] = data['Min_Licensing_Fee'] * 0.8
         data.drop(columns=['Min_Licensing_Fee'],inplace=True)
         data['Implemention_cost'] = data.apply(lambda row: row['price']*0.5, axis=1)
         data['Maintenance_cost'] = data.apply(lambda row: row['price']*0.1, axis=1)
-        data['software_category'] = data['category'].apply(lambda x: ast.literal_eval(x)[1])
         return data
     
     @staticmethod
@@ -65,14 +65,20 @@ class PreProcessor:
         return processed_text
     
     def main(self):
-        data = self.data.copy()
-        cleaned_data = self.cleaing_price(data)
-        meta_data = self.assign_values(cleaned_data)
-        meta_data['description'] = meta_data['description'].apply(self.preprocess_text_fields)
-        meta_data['title'] = meta_data['title'].apply(self.preprocess_text_fields)
-        meta_data.to_csv("data/review_metadata.csv")
-        logger.info("Data cleaned and saved in data/review_metadata.csv")
+        software_data = self.meta_data.copy()
+        review_data = self.review_data.copy()
+        software_data = self.cleaning_price(software_data)
+        software_data = self.assign_values(software_data)
+        software_data['description'] = software_data['description'].apply(self.preprocess_text_fields)
+        software_data['title'] = software_data['title'].apply(self.preprocess_text_fields)
 
-if __name__ == "__main__":
-    obj = PreProcessor("../external_data/filtered_metadata.csv", "../external_data/reviews_full.csv")
-    obj.main()
+        review_data['reviewText'] = review_data['reviewText'].apply(self.preprocess_text_fields)
+        review_data['summary'] = review_data['summary'].apply(self.preprocess_text_fields)
+
+        review_data.to_csv("../data/reviews.csv")
+        software_data.to_csv("../data/softwares.csv")
+        logger.info("review_data is cleaned and saved in data/reviews.csv and softwares_data is saved in data/softwares.csv")
+
+# if __name__ == "__main__":
+#     obj = PreProcessor("../external_data/filtered_metadata.csv", "../external_data/reviews_full.csv")
+#     obj.main()

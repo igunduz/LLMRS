@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Chatbot</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+      <style>
+        .result_table {
+            border-spacing: 0px;
+            table-layout: float;
+            width: 100%;
+        }
+
+        th {
+            border: 1px solid black;
+        }
+
+        td {
+            border: 1px solid black;
+        }
+        .result {
+        visibility: hidden;
+        padding: 5%;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        text-align: center;
+        }
+        .refresh{
+          visibility: hidden;
+          width: 300px;
+          height: 40px;
+          }
+       .further_details{
+          visibility: hidden;
+          width: 300px;
+          height: 40px;
+          }
+
+    </style>
+</head>
+
+<body>
+  <!-- partial:index.partial.html -->
+<div  style="background-color: lightblue" >
+  <center>
+  <img src="{{ url_for('serve_image', filename='bot.png') }}" class=".img-circle" style="background-color: #485a47; border-radius: 50%">
+    </center>
+</div>
+
+  <div>
+    <center>
+    <p><h3 id="heading_text" style="text-align: center; text-decoration-thickness: auto">  </h3> </p>
+      </center>
+  </div >
+
+  <div id="main_bg" class="main_bg" style="background-color: #b9a36f">
+  <form id="input_form" class="input_form">
+    <textarea id ="description_txt" class="description_txt" placeholder="Describe your software here" style="width: 100%;
+  height: 150px; padding: 12px 20px;box-sizing: border-box;
+  border: 2px solid #ccc;border-radius: 4px; background-color: #f8f8f8;resize: none"></textarea>
+    <center>
+    <input type="text" id="price_txt" class="price_txt" placeholder="Enter price range separated by ',' " style="width: 30%;
+  padding: 12px 20px;box-sizing: border-box; border: 2px solid #ccc;border-radius: 4px; background-color: #f8f8f8">
+    <input type="text" id="license_txt" class="license_txt" placeholder="Enter license fee range separated by ','" style="width: 30%;
+  padding: 12px 20px;box-sizing: border-box; border: 2px solid #ccc;border-radius: 4px; background-color: #f8f8f8">
+    <input type="text" id="maintenance_txt" class="maintenance_txt" placeholder="Enter maintenance fee range separated by ','" style="width: 30%;
+  padding: 12px 20px;box-sizing: border-box; border: 2px solid #ccc;border-radius: 4px; background-color: #f8f8f8">
+      </center>
+  </form>
+  <!-- Submit button -->
+  <button id="get_rec" type="submit" class="btn btn-primary btn-block mb-4">Get Recommendation</button>
+  </div>
+  <div id="result" class="result" >
+    <table id="result_table"></table>
+    <button id="refresh" type="submit" class="btn btn-primary btn-block mb-4">Try Another Recommendation</button>
+    <button id="further_details" type="submit" class="btn btn-primary btn-block mb-4">Why this recommendation?</button>
+  </div>
+  <script>
+          $(document).ready(function() {
+          $('#heading_text').text("Welcome, how can I help you?")
+            $('#get_rec').click(function() {
+               var description = $('#description_txt').val();
+               description = String(description).replace('[','');
+               description = String(description).replace(']','');
+               var price = $('#price_txt').val();
+               var license = $('#license_txt').val();
+               var maintenance = $('#maintenance_txt').val();
+                $.ajax({
+                    url: '/recommender',
+                    type: 'GET',
+                    data: {'software_description' : description,
+                           'max_price' : String(price).split(',')[1],
+                           'min_price' : String(price).split(',')[0],
+                           'max_license' : String(license).split(',')[1],
+                           'min_license' : String(license).split(',')[0],
+                           'max_maintenance' : String(maintenance).split(',')[1],
+                           'min_maintenance' : String(maintenance).split(',')[0]
+                           },
+                    success: function(response) {
+                        $('#heading_text').text("Our Recommendation for you")
+                        var output_data = JSON.parse(response.output)
+                        $('.main_bg #description_txt').css('display','none');
+                        $('.main_bg #price_txt').css('display','none');
+                        $('.main_bg #license_txt').css('display','none');
+                        $('.main_bg #maintenance_txt').css('display','none');
+                        $('#get_rec').css('display','none');
+                        $('.result').css('visibility', 'visible')
+                        var table_data = $('#result_table')
+                        table_data.append('<th>'+'Title'+'</th>'+'<th>'+'Description'+'</th>'+'<th>'+'Price'+'</th>'+'<th>'+'License Fee'+'</th>'+'<th>'+'Implementation Cost'+'</th>' + '<th>'+'Maintenance Cost'+'</th>' + '<th>'+'Rank Score'+'</th>')
+                        var table_row = $('<tr></tr>')
+                        $.each(output_data,  function(k,v)
+                          {
+                          var html = "<tr><td>" + v['title'] + "</td><td>" + v['description'] +"</td><td>" + v['price']+ "</td><td>" + v['Licensing_Fee']+ "</td><td>"+ v['Implemention_cost'] + "</td><td>" + v['Maintenance_cost'] + "</td><td>" + v['rank_score'] + "</td></tr>";
+                          table_data.append(html);
+                          });
+                        $('#refresh').css('visibility', 'visible')
+                        $('#further_details').css('visibility', 'visible')
+                    }
+                });
+            });
+            $('#refresh').click(function() {
+              location.reload();
+            });
+        });
+  </script>
+</body>
+</html>
