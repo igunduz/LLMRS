@@ -14,11 +14,14 @@ from logger import logger
 class PreProcessor:
     def __init__(self, meta_data_path, reviews_data_path) -> None:
         self.meta_data = pd.read_csv(meta_data_path)
+        logger.info(f"meta data is read with size {len(self.meta_data)}")
         self.review_data = pd.read_csv(reviews_data_path)
+        logger.info(f"reviews data is read with size {len(self.review_data)}")
         #self.data = review_data.merge(meta_data, on="asin", how="inner")
 
     @staticmethod
     def cleaning_price(data)-> pd.DataFrame:
+        logger.info("formatting price field to be number only")
         data = data.copy()
         #data = data[data.price.notnull()]
         data['price'] = data.price.str.replace('$','')
@@ -32,6 +35,7 @@ class PreProcessor:
     
     @staticmethod
     def assign_values(data):
+        logger.info("Generating other fee columns")
         data['software_category'] = data['category'].apply(lambda x: ast.literal_eval(x)[1])
         Min_license_fee = data.groupby('software_category').agg(Min_Licensing_Fee=('price', np.min)).reset_index()
         data = data.merge(Min_license_fee, on='software_category', how='inner')
@@ -43,6 +47,7 @@ class PreProcessor:
     
     @staticmethod
     def preprocess_text_fields(text):
+        logger.info("Text fields cleaning")
         # Tokenize the text
         text = str(text)
         text = text.replace("<div>",'')
@@ -54,6 +59,8 @@ class PreProcessor:
         text = text.replace("``",'')
         text = text.replace("< strong >",'')
         text = text.replace("< /strong >",'')
+        text = text.replace("[", '')
+        text = text.replace("]", '')
         tokens = word_tokenize(text.lower())
         # Remove stop words
         filtered_tokens = [token for token in tokens if token not in stopwords.words('english')]
@@ -62,6 +69,8 @@ class PreProcessor:
         lemmatized_tokens = [lemmatizer.lemmatize(token) for token in filtered_tokens]
         # Join the tokens back into a string
         processed_text = ' '.join(lemmatized_tokens)
+        processed_text = processed_text.replace("[", '')
+        processed_text = processed_text.replace("]", '')
         return processed_text
     
     def main(self):
@@ -71,14 +80,15 @@ class PreProcessor:
         software_data = self.assign_values(software_data)
         software_data['description'] = software_data['description'].apply(self.preprocess_text_fields)
         software_data['title'] = software_data['title'].apply(self.preprocess_text_fields)
-
         review_data['reviewText'] = review_data['reviewText'].apply(self.preprocess_text_fields)
         review_data['summary'] = review_data['summary'].apply(self.preprocess_text_fields)
 
-        review_data.to_csv("../data/reviews.csv")
-        software_data.to_csv("../data/softwares.csv")
-        logger.info("review_data is cleaned and saved in data/reviews.csv and softwares_data is saved in data/softwares.csv")
 
-# if __name__ == "__main__":
-#     obj = PreProcessor("../external_data/filtered_metadata.csv", "../external_data/reviews_full.csv")
-#     obj.main()
+        review_data.to_csv("data/reviews.csv")
+        logger.info("Reviews data cleaned and stored in /data")
+        software_data.to_csv("data/softwares.csv")
+        logger.info("Softwares data cleaned and stored in /data")
+
+if __name__ == "__main__":
+    obj = PreProcessor("../external_data/filtered_metadata.csv", "../external_data/reviews_full.csv")
+    obj.main()
