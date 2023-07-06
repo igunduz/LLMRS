@@ -62,7 +62,7 @@ class Zero_Shot_Recosys:
     @classmethod
     def rec_softwares(cls, model_name, software_data, software_description, max_price=np.inf, min_price=-1,
                       max_license=np.inf, min_license=-1, max_maintenance=np.inf,
-                      min_maintenance=-1):
+                      min_maintenance=-1, max_implementation=np.inf, min_implementation=-1):
         software_data['software_description'] = software_description.lower()
         software_data['description'] = software_data['description'].str.lower()
 
@@ -87,8 +87,7 @@ class Zero_Shot_Recosys:
         ranked_data = cls.ranking_algol(software_data.iloc[index_list, :])
         
         price_ranked_data, msg = cls.price_ranking(float(max_price), float(min_price), float(max_license),
-                                                   float(min_license),
-                                                   float(max_maintenance), float(min_maintenance), ranked_data)
+                                                   float(min_license),float(max_maintenance), float(min_maintenance), float(max_implementation), float(min_implementation), ranked_data)
 
         if msg:
             for m in msg:
