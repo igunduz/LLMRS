@@ -11,16 +11,18 @@ The dataset is in *.json* format [here](https://cseweb.ucsd.edu/~jmcauley/datase
 3. Maintenance cost is assumed to be a monthly service so it was set to 1% of the price of the product.
 
 ## Setup environment
-1. ``` virtualenv venv ```
-2. ``` conda deactivate ```
-3. ``` source venv/bin/activate ```
-4. ``` pip install --upgrade pip ```
+1. ``` pip install --upgrade pip ```
+2. ``` python -m venv .llmrs ```
+3. ``` source .llmrs/bin/activate ```
+4. ``` conda deactivate ```
 5. ``` pip install -r requirements.txt```
 
-## To run recommendation
-1. run ```python recommendation_api.py```
+## Note: All monetary values are in USD($)
 
-2. visit ``` 127.0.0.1/500 ```
+## To run recommendation
+1. run ```python src/recommendation_api.py```
+
+2. visit ``` 127.0.0.1:500 ```
 
     a. Enter Software description with price, license, maintenace and implementation costs in the respective boxes.
 
