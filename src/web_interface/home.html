@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Chatbot</title>
+  <title>LLMRS</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -70,11 +70,13 @@
   height: 150px; padding: 12px 20px;box-sizing: border-box;
   border: 2px solid #ccc;border-radius: 4px; background-color: #f8f8f8;resize: none"></textarea>
     <center>
-    <input type="text" id="price_txt" class="price_txt" placeholder="Enter price range separated by ',' " style="width: 30%;
+    <input type="text" id="price_txt" class="price_txt" placeholder=" Enter max price ',' min price " style="width: 20%;
   padding: 12px 20px;box-sizing: border-box; border: 2px solid #ccc;border-radius: 4px; background-color: #f8f8f8">
-    <input type="text" id="license_txt" class="license_txt" placeholder="Enter license fee range separated by ','" style="width: 30%;
+    <input type="text" id="license_txt" class="license_txt" placeholder="Enter max license cost ',' min license cost" style="width: 20%;
   padding: 12px 20px;box-sizing: border-box; border: 2px solid #ccc;border-radius: 4px; background-color: #f8f8f8">
-    <input type="text" id="maintenance_txt" class="maintenance_txt" placeholder="Enter maintenance fee range separated by ','" style="width: 30%;
+    <input type="text" id="maintenance_txt" class="maintenance_txt" placeholder="Enter max maintenance cost ',' min maintenance cost" style="width: 20%;
+  padding: 12px 20px;box-sizing: border-box; border: 2px solid #ccc;border-radius: 4px; background-color: #f8f8f8">
+    <input type="text" id="implementation_txt" class="implementation_txt" placeholder="Enter max implementation cost ',' max implementation cost " style="width: 20%;
   padding: 12px 20px;box-sizing: border-box; border: 2px solid #ccc;border-radius: 4px; background-color: #f8f8f8">
       </center>
   </form>
@@ -98,6 +100,7 @@
                var price = $('#price_txt').val();
                var license = $('#license_txt').val();
                var maintenance = $('#maintenance_txt').val();
+               var implementation = $('#implementation').val();
                 $.ajax({
                     url: '/recommender',
                     type: 'GET',
@@ -107,16 +110,19 @@
                            'max_license' : String(license).split(',')[1],
                            'min_license' : String(license).split(',')[0],
                            'max_maintenance' : String(maintenance).split(',')[1],
-                           'min_maintenance' : String(maintenance).split(',')[0]
+                           'min_maintenance' : String(maintenance).split(',')[0],
+                           'max_implementation' : String(implementation).split(',')[1],
+                           'min_implementation' : String(implementation).split(',')[0]
                            },
                     success: function(response) {
                         $('#heading_text').text("Our Recommendation for you")
                         output_data = JSON.parse(response.output)
-                        console.log(output_data)
+                        
                         $('.main_bg #description_txt').css('display','none');
                         $('.main_bg #price_txt').css('display','none');
                         $('.main_bg #license_txt').css('display','none');
                         $('.main_bg #maintenance_txt').css('display','none');
+                        $('.main_bg #implementation_txt').css('display','none');
                         $('#get_rec').css('display','none');
                         $('.result').css('visibility', 'visible')
                         var table_data = $('#result_table')
