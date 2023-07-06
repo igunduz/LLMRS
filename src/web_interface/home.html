@@ -70,13 +70,13 @@
   height: 150px; padding: 12px 20px;box-sizing: border-box;
   border: 2px solid #ccc;border-radius: 4px; background-color: #f8f8f8;resize: none"></textarea>
     <center>
-    <input type="text" id="price_txt" class="price_txt" placeholder=" Enter max price ',' min price " style="width: 20%;
+    <input type="text" id="price_txt" class="price_txt" placeholder=" Enter min price ',' max price " style="width: 20%;
   padding: 12px 20px;box-sizing: border-box; border: 2px solid #ccc;border-radius: 4px; background-color: #f8f8f8">
-    <input type="text" id="license_txt" class="license_txt" placeholder="Enter max license cost ',' min license cost" style="width: 20%;
+    <input type="text" id="license_txt" class="license_txt" placeholder="Enter min license cost ',' max license cost" style="width: 20%;
   padding: 12px 20px;box-sizing: border-box; border: 2px solid #ccc;border-radius: 4px; background-color: #f8f8f8">
-    <input type="text" id="maintenance_txt" class="maintenance_txt" placeholder="Enter max maintenance cost ',' min maintenance cost" style="width: 20%;
+    <input type="text" id="maintenance_txt" class="maintenance_txt" placeholder="Enter min maintenance cost ',' max maintenance cost" style="width: 20%;
   padding: 12px 20px;box-sizing: border-box; border: 2px solid #ccc;border-radius: 4px; background-color: #f8f8f8">
-    <input type="text" id="implementation_txt" class="implementation_txt" placeholder="Enter max implementation cost ',' max implementation cost " style="width: 20%;
+    <input type="text" id="implementation_txt" class="implementation_txt" placeholder="Enter min implementation cost ',' max implementation cost " style="width: 20%;
   padding: 12px 20px;box-sizing: border-box; border: 2px solid #ccc;border-radius: 4px; background-color: #f8f8f8">
       </center>
   </form>
@@ -117,7 +117,7 @@
                     success: function(response) {
                         $('#heading_text').text("Our Recommendation for you")
                         output_data = JSON.parse(response.output)
-                        
+                        console.log(output_data)
                         $('.main_bg #description_txt').css('display','none');
                         $('.main_bg #price_txt').css('display','none');
                         $('.main_bg #license_txt').css('display','none');
