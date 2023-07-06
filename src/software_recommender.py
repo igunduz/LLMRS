@@ -63,6 +63,23 @@ class Zero_Shot_Recosys:
     def rec_softwares(cls, model_name, software_data, software_description, max_price=np.inf, min_price=-1,
                       max_license=np.inf, min_license=-1, max_maintenance=np.inf,
                       min_maintenance=-1, max_implementation=np.inf, min_implementation=-1):
+        if max_price is None:
+            max_price=np.inf
+        if min_price is None:
+            min_price = -1
+        if max_license is None:
+            max_license=np.inf
+        if min_license is None:
+            min_license = -1
+        if max_maintenance is None:
+            max_maintenance = np.inf
+        if min_maintenance is None:
+            min_maintenance = -1
+        if max_implementation is None:
+            max_implementation = np.inf
+        if min_implementation is None:
+            min_implementation = -1
+
         software_data['software_description'] = software_description.lower()
         software_data['description'] = software_data['description'].str.lower()
 
