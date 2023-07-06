@@ -2,21 +2,38 @@
 
 ## Downloading data
 The dataset is in *.json* format [here](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon_v2/). After downloading *Software* reviews and metadata, we ran [this script](https://github.com/igunduz/sofRec/blob/main/src/notebooks/00_parse_and_clean_data.ipynb) to get data ready for preprocessing.
-## Pre-Processing data
+
+## Generating additional features
 1. Licensing Fee is set to 80% of the minimum price in the software category. Llicensing fees could be similar in a particular software category and country.
 
 2. Implementation Cost is set to 50% of the cost of the software.
 
-3. Maintenace cost is assumed to be a monthly service so it was set to 1% of the price of the product.
+3. Maintenance cost is assumed to be a monthly service so it was set to 1% of the price of the product.
 
-To run the data preprocessor run:
-```python src/data_preprocessing.py ```
+## Setup environment
+1. ``` virtualenv venv ```
+2. ``` conda deactivate ```
+3. ``` source venv/bin/activate ```
+4. ``` pip install --upgrade pip ```
+5. ``` pip install -r requirements.txt```
+
+## To run recommendation
+1. run ```python recommendation_api.py```
+
+2. visit ``` 127.0.0.1/500 ```
+
+    a. Enter Software description with price, license, maintenace and implementation costs in the respective boxes.
+
+    b. When you clisk `Get Recommendation`, this would load pre-processed `data/softwares_with_scores.csv` and compute similarity with input software specification from user input.
+
+    c. Output is then ranked with our ranking algorithm and parsed to the web interface
+
+
+
 
 ## The pipeline
-The pipeline contains 5 steps as follows:
+The pipeline contains 3 steps as follows:
+1. [Data preprocessing](https://github.com/igunduz/sofRec/blob/main/src/data_preprocessing.py)
+2. [Process Software Data](https://github.com/igunduz/sofRec/blob/main/src/software_data_processor.py)
+3. [Recommender](https://github.com/igunduz/sofRec/blob/main/src/notebooks/recommendation_api.py)
 
-1. [Data preprocessing](https://github.com/igunduz/sofRec/blob/main/src/notebooks/01_data_preprocessing.ipynb)
-2. [basic analysis](https://github.com/igunduz/sofRec/blob/main/src/notebooks/02_basic_analysis.ipynb)
-3. [LLM encoding](https://github.com/igunduz/sofRec/blob/main/src/notebooks/03_LLM_encoding.ipynb)
-4. [Data Labeling Transformer](https://github.com/igunduz/sofRec/blob/main/src/notebooks/04_data_Labeling_Transformer.ipynb)
-5. [Cosine similarity](https://github.com/igunduz/sofRec/blob/main/src/notebooks/05_cosine_similarity.ipynb)
