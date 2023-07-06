@@ -1,6 +1,7 @@
 import os
 import sys
 from os.path import join, exists
+import re
 
 import numpy as np
 import pandas as pd
@@ -76,6 +77,8 @@ class Zero_Shot_Recosys:
         for ind, score in top_recommendations:
             index_list.append(ind)
         ranked_data = cls.ranking_algol(software_data.iloc[index_list, :])
+        ranked_data['description'] = ranked_data['description'].apply(lambda x: cls.remove_html_tags_in_data(x))
+        ranked_data['title'] = ranked_data['title'].apply(lambda x: cls.remove_html_tags_in_data(x))
         price_ranked_data, msg = cls.price_ranking(float(max_price), float(min_price), float(max_license),
                                                    float(min_license),
                                                    float(max_maintenance), float(min_maintenance), ranked_data)
@@ -88,7 +91,10 @@ class Zero_Shot_Recosys:
             return price_ranked_data
         else:
             return ranked_data
-
+    @staticmethod
+    def remove_html_tags_in_data(text_data):
+        p = re.compile(r'<.*?>')
+        return p.sub('', text_data)
     def recommender(self, softwares, query_params) -> pd.DataFrame:
         softwares = softwares.copy()
         model_name = "sentence-transformers/all-MiniLM-L6-v2"
