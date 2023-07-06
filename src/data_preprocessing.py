@@ -35,6 +35,7 @@ class PreProcessor:
         data['price'] = data['price'].str.strip()
         data['price'] = data['price'].str.replace(',','')
         data['price'] = data['price'].astype(float)
+        data['price'] = data['price'] * 100
         data = data[data.price.notnull()]
         return data
     
