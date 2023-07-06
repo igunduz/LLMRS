@@ -1,14 +1,12 @@
 import os
 import sys
-from os.path import join, exists
-import re
+from os.path import join
 
 import numpy as np
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
 
 sys.path.append(join(os.getcwd(), 'src'))
 from logger import logger
@@ -23,7 +21,7 @@ class Zero_Shot_Recosys:
         return df
 
     def price_ranking(max_price, min_price, max_license_price, min_license_price, max_maintenance_price,
-                      min_maintenance_price, ranked_data):
+                      min_maintenance_price, max_implementation_price, min_implementation_price, ranked_data):
         msg = []
         ranked_price_data = ranked_data[(ranked_data.price >= min_price) & (ranked_data.price <= max_price)]
         if len(ranked_price_data) >= 1:
@@ -49,6 +47,15 @@ class Zero_Shot_Recosys:
         else:
             msg.append(
                 "The data available does not have the maintenance fee between the range you specified after license fee filtering")
+            
+        ranked_implementation_data = ranked_data[
+            (ranked_data.Licensing_Fee >= min_implementation_price) & (ranked_data.Licensing_Fee <= max_implementation_price)]
+        if len(ranked_implementation_data) >= 1:
+            ranked_data = ranked_implementation_data
+            logger.info(f"Size after filtering with maintenance fee: {len(ranked_implementation_data)}")
+        else:
+            msg.append(
+                "The data available does not have the maintenance fee between the range you specified after license fee filtering")
 
         return ranked_data, msg
 
@@ -56,7 +63,8 @@ class Zero_Shot_Recosys:
     def rec_softwares(cls, model_name, software_data, software_description, max_price=np.inf, min_price=-1,
                       max_license=np.inf, min_license=-1, max_maintenance=np.inf,
                       min_maintenance=-1):
-        software_data['software_description'] = software_description
+        software_data['software_description'] = software_description.lower()
+        software_data['description'] = software_data['description'].str.lower()
 
         if model_name == "TfidfVectorizer":
             vectorizer = TfidfVectorizer()
@@ -77,8 +85,7 @@ class Zero_Shot_Recosys:
         for ind, score in top_recommendations:
             index_list.append(ind)
         ranked_data = cls.ranking_algol(software_data.iloc[index_list, :])
-        ranked_data['description'] = ranked_data['description'].apply(lambda x: cls.remove_html_tags_in_data(x))
-        ranked_data['title'] = ranked_data['title'].apply(lambda x: cls.remove_html_tags_in_data(x))
+        
         price_ranked_data, msg = cls.price_ranking(float(max_price), float(min_price), float(max_license),
                                                    float(min_license),
                                                    float(max_maintenance), float(min_maintenance), ranked_data)
@@ -91,10 +98,7 @@ class Zero_Shot_Recosys:
             return price_ranked_data
         else:
             return ranked_data
-    @staticmethod
-    def remove_html_tags_in_data(text_data):
-        p = re.compile(r'<.*?>')
-        return p.sub('', text_data)
+
     def recommender(self, softwares, query_params) -> pd.DataFrame:
         softwares = softwares.copy()
         model_name = "sentence-transformers/all-MiniLM-L6-v2"
