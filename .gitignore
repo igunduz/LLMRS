@@ -23,6 +23,7 @@ wheels/
 venv/
 .idea/
 share/python-wheels/
+output/
 *.egg-info/
 .installed.cfg
 *.egg
