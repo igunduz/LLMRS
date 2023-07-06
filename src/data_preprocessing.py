@@ -91,13 +91,15 @@ class PreProcessor:
         review_data['summary'] = review_data['summary'].apply(self.preprocess_text_fields)
         logger.info("Text fields cleaning complete")
 
-        review_data.to_csv("data/reviews.csv")
-        logger.info("Reviews data cleaned and stored in /data")
-        software_data.to_csv("data/softwares.csv")
-        logger.info("Softwares data cleaned and stored in /data")
+        return review_data, software_data
+
 
 if __name__ == "__main__":
     path_to_meta_data = "../external_data/filtered_metadata.csv"
     path_to_reviews_data = "../external_data/reviews_full.csv"
     obj = PreProcessor( path_to_meta_data, path_to_reviews_data )
-    obj.main()
+    review_data, software_data = obj.main()
+    review_data.to_csv("data/reviews.csv")
+    logger.info("Reviews data cleaned and stored in /data")
+    software_data.to_csv("data/softwares.csv")
+    logger.info("Softwares data cleaned and stored in /data")
