@@ -47,6 +47,9 @@
        .reason_table{
        visibility: hidden;
        }
+       .reason_explanation{
+        visibility: hidden;
+       }
     </style>
 </head>
 
@@ -85,6 +88,8 @@
   </div>
   <div id="result" class="result" >
     <table id="result_table"></table>
+    <div id="reason_explanation"> <p> Our recommendation is based on the ranking score. A software with a higher postive ranking score is better.</p>
+    </div>
     <table id="reason_table"></table>
     <button id="refresh" type="submit" class="btn btn-primary btn-block mb-4">Try Another Recommendation</button>
     <button id="further_details" type="submit" class="btn btn-primary btn-block mb-4">Why this recommendation?</button>
@@ -141,9 +146,10 @@
             $('#refresh').click(function() {
               location.reload();
             });
-           $('#further_details').click(function(){
-                $('#reason_table').css('visibility', 'visible')
+           $('#further_details').click(function(){                
                 $('#result_table').css('display', 'none')
+                $('#reason_table').css('visibility', 'visible') 
+                
                 var table_data = $('#reason_table');
                 table_data.append('<th>'+'Title'+'</th>'+'<th>'+'Description'+'</th>'+'<th>'+'Price'+'</th>'+'<th>'+'License Fee'+'</th>'+'<th>'+'Implementation Cost'+'</th>' + '<th>'+'Maintenance Cost'+'</th>' + '<th>'+'Rank Score'+'</th>');
                 $.each(output_data,  function(k,v)
@@ -151,7 +157,8 @@
               var html = "<tr><td>" + v['title'] + "</td><td>" + v['description'] +"</td><td>" + v['price']+ "</td><td>" + v['Licensing_Fee']+ "</td><td>"+ v['Implemention_cost'] + "</td><td>" + v['Maintenance_cost'] + "</td><td>" + v['rank_score'] + "</td></tr>";
               table_data.append(html);
               });
-           });
+              $('#further_details').css('visibility', 'hidden');
+            });
         });
   </script>
 </body>
