@@ -26,12 +26,21 @@ The dataset is in *.json* format [here](https://cseweb.ucsd.edu/~jmcauley/datase
 
     a. Enter Software description with price, license, maintenace and implementation costs in the respective boxes.
 
-    b. When you clisk `Get Recommendation`, this would load pre-processed `data/softwares_with_scores.csv` and compute similarity with input software specification from user input.
+    b. When you click `Get Recommendation`, this would load pre-processed `data/softwares_with_scores.csv` and compute similarity with input software specification from user input.
 
     c. Output is then ranked with our ranking algorithm and parsed to the web interface
 
 
+## Sample input 
+"Software for managing employee files"
 
+price = 0,10
+
+license cost = 0, 10
+
+maintenance cost = 0, 10
+
+implementation cost= 0, 10
 
 ## The pipeline
 The pipeline contains 3 steps as follows:
