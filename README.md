@@ -17,7 +17,7 @@ The dataset is in *.json* format [here](https://cseweb.ucsd.edu/~jmcauley/datase
 4. ``` conda deactivate ```
 5. ``` pip install -r requirements.txt```
 
-## Note: All monetary values are in USD($)
+## Note: All monetary values are in USD($) * 100
 
 ## To run recommendation
 1. run ```python src/recommendation_api.py```

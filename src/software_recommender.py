@@ -63,6 +63,7 @@ class Zero_Shot_Recosys:
     def rec_softwares(cls, model_name, software_data, software_description, max_price=np.inf, min_price=-1,
                       max_license=np.inf, min_license=-1, max_maintenance=np.inf,
                       min_maintenance=-1, max_implementation=np.inf, min_implementation=-1):
+        
         if max_price is None:
             max_price=np.inf
         if min_price is None:
@@ -117,8 +118,14 @@ class Zero_Shot_Recosys:
 
     def recommender(self, softwares, query_params) -> pd.DataFrame:
         softwares = softwares.copy()
-        model_name = "sentence-transformers/all-MiniLM-L6-v2"
+        model_name = "sentence-transformers/all-mpnet-base-v2"
         output = self.rec_softwares(model_name=model_name, software_data=softwares, **query_params)
         output.to_csv(f"output/{model_name.replace('/', '_')}_output.csv")
+        output['price'] = output['price'].apply(lambda x:round(x,2))
+        output['Implemention_cost'] = output['Implemention_cost'].apply(lambda x:round(x,2)) 
+        output['Maintenance_cost'] = output['Maintenance_cost'].apply(lambda x:round(x,2))
+        output['Licensing_Fee'] = output['Licensing_Fee'].apply(lambda x:round(x,2))
+        output['rank_score'] = output['rank_score'].apply(lambda x:round(x,2))
+
         output = output.reset_index()
         return output.head(5)
