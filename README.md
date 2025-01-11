@@ -94,7 +94,7 @@ conda deactivate
 pip install -r requirements.txt
 ```
 
-## Note: All monetary values are in USD($) * 100
+##### Note: All monetary values are in USD($) * 100
 
 ## Running the Code
 
