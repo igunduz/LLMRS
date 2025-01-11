@@ -68,7 +68,7 @@ The pipeline contains 3 steps as follows:
 The dataset is in *.json* format [here](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon_v2/). After downloading *Software* reviews and metadata, we ran [this script](https://github.com/igunduz/sofRec/blob/main/src/notebooks/00_parse_and_clean_data.ipynb) to get data ready for preprocessing.
 
 ### Generating additional features
-1. Licensing Fee is set to 80% of the minimum price in the software category. Llicensing fees could be similar in a particular software category and country.
+1. Licensing Fee is set to 80% of the minimum price in the software category. Licensing fees could be similar in a particular software category and country.
 
 2. Implementation Cost is set to 50% of the cost of the software.
 
