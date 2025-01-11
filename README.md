@@ -1,4 +1,4 @@
-# LLMRS: Unlocking Potentials of LLM-Based Recommender Systems
+# LLMRS: Unlocking Potentials of LLM-Based Recommender Systems for Software Purchase
 
 ## Downloading data
 The dataset is in *.json* format [here](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon_v2/). After downloading *Software* reviews and metadata, we ran [this script](https://github.com/igunduz/sofRec/blob/main/src/notebooks/00_parse_and_clean_data.ipynb) to get data ready for preprocessing.
